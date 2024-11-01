@@ -9,12 +9,12 @@ The GHG.flux.tropics package consists of eight MATLAB scripts designed to calcul
 
 The package includes the necessary raw data files and is related to a paper currently in review: Duvert C. et al., Climate and landscape diversity drive highly variable greenhouse gas emissions from (sub)tropical inland waters.
 
-# System requirements
+### System requirements
 - MATLAB version: R2022a Update 1 or later.
 - Required toolboxes: Statistics and Machine Learning Toolbox, Optimization Toolbox.
 - Hardware: No specific hardware requirements beyond standard MATLAB-compatible devices.
 
-# Instructions
+### Instructions
 1. Set up directories. Ensure that all input datasets and scripts are either in the working directory or add their location as follows:
 ```MATLAB
 addpath('/Users/...') % Add the directory where functions and/or datasets are stored
@@ -25,6 +25,6 @@ call_functions
 ```
 A pop-up will prompt you to select whether to analyse river or lake data.
 
-# Expected outputs
+### Expected outputs
 Each function generates specific outputs, as detailed in the header of each script. Key outputs are displayed in MATLAB’s command window as the functions run.
 The expected run time for the river data is between 45 seconds and 2 minutes, while the expected run time for the lake data is between 20 seconds and 1 minute.
