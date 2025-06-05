@@ -116,47 +116,47 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 
 | Column name                     | Units / format        | Description |
 |--------------------------------|------------------------|-------------|
-| Refs                           | —                      | Aggregated reference numbers as per `reference_list.csv` |
-| Site                           | —                      | Aggregated site names |
-| Latitude                       | decimal degrees        | Latitude of site |
-| Longitude                      | decimal degrees        | Longitude of site |
-| Elevation_m                    | m                      | Elevation based on H90 |
-| CatchmentArea_km2              | km2                    | Catchment area based on H90 |
-| StreamOrder                    | —                      | Consolidated stream order (combined from reported and H90-derived values) |
-| LakeIndex                      | —                      | Lake index |
-| LakeType                       | —                      | Type of waterbody: "lake" or "reservoir" |
-| Slope                          | m/m                    | Consolidated slope (combined from reported and H90-derived values) |
-| Climate                        | categorical (1–5)      | 1: humid tropics; 2: wet-dry tropics; 3: (semi)arid (sub)tropics; 4: humid subtropics; 5: highland (sub)tropics |
-| k600_md                        | m/d                    | Mean consolidated gas transfer velocity (k600), measured or modelled |
-| MeasFreq                       | —                      | Highest frequency of measurement across studies at this site (from "interannual" to "HF"; see Methods) |
-| ReportedFreq                   | —                      | Highest frequency of available data at this site (from "interannual" to "HF"; see Methods) |
-| DirectIndirect_CO2             | —                      | CO2 data source: "direct" (sensor, headspace) or "indirect" (alkalinity+pH) |
-| FluxMethod                     | —                      | Method used to estimate GHG fluxes: "measured" or "modelled" |
-| Discharge_m3s                  | m3/s                   | Mean annual runoff from GRADES |
-| Velocity_ms                    | m/s                    | Mean flow velocity |
-| CO2_uM                         | uM                     | Mean CO2 concentration |
-| n_CO2                          | —                      | Number of individual measurements used for site-level averaging |
-| F_CO2_mmol_m2_d                | mmol m-2 d-1           | Mean diffusive CO2 flux |
-| n_FCO2                         | —                      | Number of individual measurements used for site-level averaging |
-| F_CO2_measmod_mmol_m2_d        | mmol m-2 d-1           | Mean CO2 flux estimate (combined measured and modelled) |
-| CH4_uM                         | uM                     | Mean CH4 concentration |
-| n_CH4                          | —                      | Number of individual measurements used for site-level averaging |
-| F_CH4_diff_mmol_m2_d           | mmol m-2 d-1           | Mean diffusive CH4 flux |
-| n_FCH4diff                     | —                      | Number of individual measurements used for site-level averaging |
-| F_CH4_measmod_mmol_m2_d        | mmol m-2 d-1           | Mean diffusive CH4 flux estimate (combined measured and modelled) |
-| F_CH4_eb_mmol_m2_d             | mmol m-2 d-1           | Mean ebullitive CH4 flux |
-| n_FCH4eb                       | —                      | Number of individual measurements used for site-level averaging |
-| N2O_uM                         | uM                     | Mean N2O concentration |
-| n_N2O                          | —                      | Number of individual measurements used for site-level averaging |
-| F_N2O_mmol_m2_d                | mmol m-2 d-1           | Mean diffusive N2O flux |
-| n_FN2O                         | —                      | Number of individual measurements used for site-level averaging |
-| F_N2O_measmod_mmol_m2_d        | mmol m-2 d-1           | Mean N2O flux estimate (combined measured and modelled) |
-| Temp_C                         | °C                     | Mean water temperature |
-| DO_mgL                         | mg/L                   | Mean dissolved oxygen |
-| pH                             | —                      | Mean pH |
-| Cond_uScm                      | uS/cm                  | Mean electrical conductivity |
-| DOC_mgL                        | mg/L                   | Mean dissolved organic carbon |
-| DIC_mgL                        | mg/L                   | Mean dissolved inorganic carbon |
+| `Refs`                           | —                      | Aggregated reference numbers as per `reference_list.csv` |
+| `Site`                           | —                      | Aggregated site names |
+| `Latitude`                       | decimal degrees        | Latitude of site |
+| `Longitude`                      | decimal degrees        | Longitude of site |
+| `Elevation_m`                    | m                      | Elevation based on H90 |
+| `CatchmentArea_km2`              | km2                    | Catchment area based on H90 |
+| `StreamOrder`                    | —                      | Consolidated stream order (combined from reported and H90-derived values) |
+| `LakeIndex`                      | —                      | Lake index |
+| `LakeType`                       | —                      | Type of waterbody: "lake" or "reservoir" |
+| `Slope`                          | m/m                    | Consolidated slope (combined from reported and H90-derived values) |
+| `Climate`                        | categorical (1–5)      | 1: humid tropics; 2: wet-dry tropics; 3: (semi)arid (sub)tropics; 4: humid subtropics; 5: highland (sub)tropics |
+| `k600_md`                        | m/d                    | Mean consolidated gas transfer velocity (k600), measured or modelled |
+| `MeasFreq`                       | —                      | Highest frequency of measurement across studies at this site (from "interannual" to "HF"; see Methods) |
+| `ReportedFreq`                   | —                      | Highest frequency of available data at this site (from "interannual" to "HF"; see Methods) |
+| `DirectIndirect_CO2`             | —                      | CO2 data source: "direct" (sensor, headspace) or "indirect" (alkalinity+pH) |
+| `FluxMethod`                     | —                      | Method used to estimate GHG fluxes: "measured" or "modelled" |
+| `Discharge_m3s`                  | m3/s                   | Mean annual runoff from GRADES |
+| `Velocity_ms`                    | m/s                    | Mean flow velocity |
+| `CO2_uM`                         | uM                     | Mean CO2 concentration |
+| `n_CO2`                          | —                      | Number of individual measurements used for site-level averaging |
+| `F_CO2_mmol_m2_d`                | mmol m-2 d-1           | Mean diffusive CO2 flux |
+| `n_FCO2`                         | —                      | Number of individual measurements used for site-level averaging |
+| `F_CO2_measmod_mmol_m2_d`        | mmol m-2 d-1           | Mean CO2 flux estimate (combined measured and modelled) |
+| `CH4_uM`                         | uM                     | Mean CH4 concentration |
+| `n_CH4`                          | —                      | Number of individual measurements used for site-level averaging |
+| `F_CH4_diff_mmol_m2_d`           | mmol m-2 d-1           | Mean diffusive CH4 flux |
+| `n_FCH4diff`                     | —                      | Number of individual measurements used for site-level averaging |
+| `F_CH4_measmod_mmol_m2_d`        | mmol m-2 d-1           | Mean diffusive CH4 flux estimate (combined measured and modelled) |
+| `F_CH4_eb_mmol_m2_d`             | mmol m-2 d-1           | Mean ebullitive CH4 flux |
+| `n_FCH4eb`                       | —                      | Number of individual measurements used for site-level averaging |
+| `N2O_uM`                         | uM                     | Mean N2O concentration |
+| `n_N2O`                          | —                      | Number of individual measurements used for site-level averaging |
+| `F_N2O_mmol_m2_d`                | mmol m-2 d-1           | Mean diffusive N2O flux |
+| `n_FN2O`                         | —                      | Number of individual measurements used for site-level averaging |
+| `F_N2O_measmod_mmol_m2_d`        | mmol m-2 d-1           | Mean N2O flux estimate (combined measured and modelled) |
+| `Temp_C`                         | °C                     | Mean water temperature |
+| `DO_mgL`                         | mg/L                   | Mean dissolved oxygen |
+| `pH`                             | —                      | Mean pH |
+| `Cond_uScm`                      | uS/cm                  | Mean electrical conductivity |
+| `DOC_mgL`                        | mg/L                   | Mean dissolved organic carbon |
+| `DIC_mgL`                        | mg/L                   | Mean dissolved inorganic carbon |
 
 ---
 
