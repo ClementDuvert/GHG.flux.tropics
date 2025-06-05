@@ -1,6 +1,6 @@
 # GHG.flux.tropics
 
-The GHG.flux.tropics package consists of eight MATLAB scripts designed to calculate greenhouse gas (GHG) fluxes from river and lake datasets in tropical and subtropical regions. The package enables you to:
+The GHG.flux.tropics package consists of MATLAB scripts designed to calculate greenhouse gas (GHG) fluxes from river and lake datasets in tropical and subtropical regions. The package enables you to:
 - Upload and preprocess GHG data for rivers and/or lakes.
 - Standardise units.
 - Generate mean or median values per site and system.
