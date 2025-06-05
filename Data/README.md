@@ -15,10 +15,10 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 
 | File name | Description |
 |-----------|-------------|
-| `dataset_lakes_raw.csv` | Raw extraction of lake data |
-| `dataset_rivers_raw.csv` | Raw extraction of river data |
-| `dataset_lakes_reduced.csv` | Processed and reduced version of lake dataset with means per system |
-| `dataset_rivers_reduced.csv` | Processed and reduced version of river dataset with means per site |
+| `dataset_lakes_raw.csv` | Unprocessed lake data as extracted from original studies |
+| `dataset_rivers_raw.csv` | Unprocessed river data as extracted from original studies |
+| `dataset_lakes_reduced.csv` | Processed and reduced version of lake data with means per system |
+| `dataset_rivers_reduced.csv` | Processed and reduced version of river data with means per site |
 
 ---
 
