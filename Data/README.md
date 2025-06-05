@@ -15,8 +15,8 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 
 | File name | Description |
 |-----------|-------------|
-| `dataset_lakes_raw.csv` | Unprocessed lake data as extracted from original studies |
-| `dataset_rivers_raw.csv` | Unprocessed river data as extracted from original studies |
+| `dataset_lakes_raw.txt` | Unprocessed lake data as extracted from original studies |
+| `dataset_rivers_raw.txt` | Unprocessed river data as extracted from original studies |
 | `dataset_lakes_reduced.csv` | Processed and reduced version of lake data with means per system |
 | `dataset_rivers_reduced.csv` | Processed and reduced version of river data with means per site |
 
@@ -38,7 +38,7 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 
 | File name | Description |
 |-----------|-------------|
-| `lake_HydroLAKES.2025.txt` | Lake attribute data from HydroLAKES (area, depth, etc.) |
+| `lake_HydroLAKES_2025.txt` | Lake attribute data from HydroLAKES (area, depth, etc.) |
 | `lake_manual_2025.csv` | Manually curated lake metadata |
 | `lake_surface_areas_natural.csv` | Surface areas of natural lakes and ponds per climate zone and size class |
 | `lake_surface_areas_manmade.csv` | Surface areas of reservoirs and man-made ponds per climate zone and size class |
@@ -48,7 +48,7 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 
 ## Column descriptions and units
 
-### raw datasets (`dataset_lakes_raw.csv` and `dataset_rivers_raw.csv`)
+### raw datasets (`dataset_lakes_raw.txt` and `dataset_rivers_raw.txt`)
 
 | Column name             | Units / format      | Description |
 |-------------------------|---------------------|-------------|
