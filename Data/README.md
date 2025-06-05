@@ -1,5 +1,5 @@
-# Dataset Documentation
-This folder contains raw and processed datasets used for the analysis of GHG fluxes from (sub)tropical lakes and rivers, including supporting metadata.
+# Dataset documentation
+This folder contains raw and processed datasets used for the analysis of (sub)tropical inland water GHG fluxes, including supporting metadata.
 
 ---
 
