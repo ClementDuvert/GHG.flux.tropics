@@ -134,19 +134,19 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 | `FluxMethod`                     | —                      | Method used to estimate GHG fluxes: "measured" or "modelled" |
 | `Discharge_m3s`                  | m3/s                   | Mean annual runoff from GRADES |
 | `Velocity_ms`                    | m/s                    | Mean flow velocity |
-| `CO2_uM`                         | uM                     | Mean CO2 concentration |
+| `CO2_uM`                         | µM                     | Mean CO2 concentration |
 | `n_CO2`                          | —                      | Number of individual measurements used for site-level averaging |
 | `F_CO2_mmol_m2_d`                | mmol m-2 d-1           | Mean diffusive CO2 flux |
 | `n_FCO2`                         | —                      | Number of individual measurements used for site-level averaging |
 | `F_CO2_measmod_mmol_m2_d`        | mmol m-2 d-1           | Mean CO2 flux estimate (combined measured and modelled) |
-| `CH4_uM`                         | uM                     | Mean CH4 concentration |
+| `CH4_uM`                         | µM                     | Mean CH4 concentration |
 | `n_CH4`                          | —                      | Number of individual measurements used for site-level averaging |
 | `F_CH4_diff_mmol_m2_d`           | mmol m-2 d-1           | Mean diffusive CH4 flux |
 | `n_FCH4diff`                     | —                      | Number of individual measurements used for site-level averaging |
 | `F_CH4_measmod_mmol_m2_d`        | mmol m-2 d-1           | Mean diffusive CH4 flux estimate (combined measured and modelled) |
 | `F_CH4_eb_mmol_m2_d`             | mmol m-2 d-1           | Mean ebullitive CH4 flux |
 | `n_FCH4eb`                       | —                      | Number of individual measurements used for site-level averaging |
-| `N2O_uM`                         | uM                     | Mean N2O concentration |
+| `N2O_uM`                         | µM                     | Mean N2O concentration |
 | `n_N2O`                          | —                      | Number of individual measurements used for site-level averaging |
 | `F_N2O_mmol_m2_d`                | mmol m-2 d-1           | Mean diffusive N2O flux |
 | `n_FN2O`                         | —                      | Number of individual measurements used for site-level averaging |
@@ -154,9 +154,9 @@ This folder contains raw and processed datasets used for the analysis of GHG flu
 | `Temp_C`                         | °C                     | Mean water temperature |
 | `DO_mgL`                         | mg/L                   | Mean dissolved oxygen |
 | `pH`                             | —                      | Mean pH |
-| `Cond_uScm`                      | uS/cm                  | Mean electrical conductivity |
-| `DOC_mgL`                        | mg/L                   | Mean dissolved organic carbon |
-| `DIC_mgL`                        | mg/L                   | Mean dissolved inorganic carbon |
+| `Cond_uScm`                      | µS/cm                  | Mean electrical conductivity |
+| `DOC_uM`                         | µM                     | Mean dissolved organic carbon |
+| `DIC_uM`                         | µM                     | Mean dissolved inorganic carbon |
 
 ---
 
