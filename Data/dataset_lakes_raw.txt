@@ -5242,3 +5242,10 @@ N	1226	Wudaoliang-6	15	6	2020		single	single	35.38789	93.50891	lake	29	4490	1472
 35	337	Qiandao	15	10	2020		monthly	monthly	29.55069	118.926396	reservoir	14		580000000	17800000000	30									modelled-empirical			18.937332	µmol/m2/d														data scanned from Fig. 1							
 35	337	Qiandao	15	11	2020		monthly	monthly	29.55069	118.926396	reservoir	14		580000000	17800000000	30									modelled-empirical			21.034891	µmol/m2/d														data scanned from Fig. 1							
 35	337	Qiandao	15	12	2020		monthly	monthly	29.55069	118.926396	reservoir	14		580000000	17800000000	30									modelled-empirical			9.1473255	µmol/m2/d														data scanned from Fig. 1							
+503	338	Lago Olmeca	15	9	2009		seasonal	annual	19.1522	-96.1501	lake	2		620000											measured-chamber			5247	mgCH4/m2/d						28															
+504	338	Lago Coyol	15	9	2009		seasonal	annual	19.16016667	-96.1465	lake	2		45000											measured-chamber			390	mgCH4/m2/d						28															
+505	338	Lago Zirahuen	15	9	2009		seasonal	annual	19.4358	-101.73894	lake	12		8590000											measured-chamber			4.9	mgCH4/m2/d						15															
+506	338	Lago Umecuaro	15	9	2009		seasonal	annual	19.52253333	-101.2428667	lake	12		1310000											measured-chamber			57.8	mgCH4/m2/d						15															
+507	338	Lago de Guadalupe	15	9	2009		seasonal	annual	19.62968571	-99.26538571	lake	12		4500000											measured-chamber			932.8	mgCH4/m2/d						15															
+508	338	Lago El Llano	15	9	2009		seasonal	annual	19.6567	-99.50785	lake	12		60000											measured-chamber			114.1	mgCH4/m2/d						15															
+509	339	Koombooloomba Dam	15	4	2008		single	single	-17.83333	145.6042	reservoir	11		15550000											measured-chamber			9.420918367	mgCH4/m2/d						22.2															
