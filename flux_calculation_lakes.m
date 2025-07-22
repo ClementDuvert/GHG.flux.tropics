@@ -3,12 +3,17 @@
 %
 function[T,scaledFlux_eq_CO2_lake,scaledFlux_eq_CO2_reservoir,...
     scaledFlux_eq_CH4_lake,scaledFlux_eq_CH4_reservoir,...
-    scaledFlux_eq_N2O_lake,scaledFlux_eq_N2O_reservoir]=flux_calculation_lakes(T)
+    scaledFlux_eq_N2O_lake,scaledFlux_eq_N2O_reservoir,...
+    scaledFlux_boot_eq_CO2_lake,scaledFlux_boot_eq_CO2_reservoir,...
+    scaledFlux_boot_eq_CH4_lake,scaledFlux_boot_eq_CH4_reservoir,...
+    scaledFlux_boot_eq_N2O_lake,scaledFlux_boot_eq_N2O_reservoir]=flux_calculation_lakes(T)
 %
 % This function contains the following sections:
 % 1. Upload data and constants
-% 2. Flux calculation via bootstrapping
-% 3. Upscaling using lake/reservoir surface areas
+% 2. Estimate flux based on concentration and k
+% 3. Bootstrapping to obtain median fluxes + IQR per size class and climate zone
+% 4. Upscaling using lake/reservoir surface areas and add ebullitive CH4 flux
+% 5. Output and save data
 %
 % Inputs
 % 'T' is a reduced table that has been processed using 'unit_conversion', 'climate_classification' and 'averaging_per_site'
@@ -37,6 +42,11 @@ GWP_N2O=298;
 GWP_CH4=34;
 percent_error_area=10; %percent error in surface area (10% for standing waters)
 
+%constants for calculation of ebullitive CH4 fluxes
+flux_eb=2.1; %median ebullitive flux across 286 observations (mmol/m2/d)
+flux_err=100; %we apply a 100% error on the median flux
+ratio_large=0.1; % we apply this ratio for systems >1000 km2 (see Johnson et al. 2022)
+
 %import lake and reservoir surface areas for each size and climate class
 A1=readtable('lake_surface_areas_natural.csv');
 A1.new_climate_class=NaN(height(A1),1);
@@ -64,12 +74,8 @@ SurfArRes=renamevars(SurfArRes,'new_climate_class','climate_class');
 clear summary_table
 SurfAr={SurfArLakes;SurfArRes};
 
-% import coefficients of power-law relationship between ebullitive and diffusive CH4 fluxes
-%p1=1.0636; p2=10^0.1850;
-p1=0.9123; p2=10^0.2658;   %revised May 2025
 
-
-%% 2. Flux calculation via bootstrapping
+%% 2. Estimate flux based on concentration and k
 
 % start loop with 3 gases and assign flux variables
 gases={'CO2','CH4','N2O'};
@@ -111,7 +117,6 @@ for g=1:3
         end
     end
     F=mean([F_CC98,F_VP13],2); %we take the mean of the best 2 models
-    %F=F_W92; %F=F_CC98; %F=F_VP13;
     T.(['f_modelled_' gas])=F;
     clear F
 
@@ -173,7 +178,6 @@ for g=1:3
         set(gca,'XTick',[1e-2 1e0 1e2 1e4],'XTickLabel',{'10^{-2}','10^{0}','10^{2}','10^{4}'})
         xlabel('measured flux (mmol m^{-2} d^{-1})');
         ylabel('log(residuals)');
-        %set(gca,'YTick',[-1000 0 1000 2000])
         plot([1e-5 1e4],[0 0],'k--','LineWidth',1.2);
         grid on; box on
         set(gca,'FontSize',12,'FontName','Arial');
@@ -192,33 +196,50 @@ for g=1:3
     end
 
 
-    % separate dataset between reservoirs and lakes/ponds
+
+    %% 3. Bootstrapping to obtain median fluxes + IQR per size class and climate zone
+
+    % separate dataset between reservoirs and lakes
     mLake=T(strcmp(T.LakeType,'lake') | strcmp(T.LakeType,'pond'),:);
     mReservoir=T(strcmp(T.LakeType,'reservoir'),:);
     Dbs={mLake; mReservoir};
     type={'lake','reservoir'};
 
     % create reduced datasets for the system type / size class / climate zone of interest
-    f=NaN(boot_nb,5,5);  f_ci=NaN(2,5,5); nb=NaN(1,5,5); %preallocate
+    % for N2O, we only use three size classes
+    num_classes=strcmp(gas,'N2O')*3+~strcmp(gas,'N2O')*6;
+    f=NaN(boot_nb,num_classes,5); f_ci=NaN(2,num_classes,5); nb=NaN(1,num_classes,5); %preallocate
     for resnat=1:2 %this is the loop for lakes/reservoirs
         M=Dbs{resnat}; %first we run lakes, then reservoirs
-        for lks=1:6 %this is the loop for lake size classes
-            for cl=1:5 %this is the loop for climate zones
-                if lks==1
-                    S=M(M.Area>0.01 & M.Area<0.1,:);
-                elseif lks==2
-                    S=M(M.Area>0.1 & M.Area<1,:);
-                elseif lks==3
-                    S=M(M.Area>1 & M.Area<10,:);
-                elseif lks==4
-                    S=M(M.Area>10 & M.Area<100,:);
-                elseif lks==5
-                    S=M(M.Area>100 & M.Area<1000,:);
-                elseif lks==6 && resnat==1
-                    S=M(M.Area>1000,:);
-                elseif lks==6 && resnat==2
-                    S=M(M.Area>100,:); %special condition for reservoirs >1000: we use data from reservoirs 100-1000 (see Methods).
+
+        for lks=1:num_classes
+            for cl=1:5
+                if strcmp(gas, 'N2O') %only 3 classes for N2O
+                    if lks==1
+                        S=M(M.Area>0.01 & M.Area<0.1,:);
+                    elseif lks==2
+                        S=M(M.Area>=0.1 & M.Area<=10,:);
+                    elseif lks==3
+                        S=M(M.Area>10,:);
+                    end
+                else %6 classes for CO2 and CH4
+                    if lks==1
+                        S=M(M.Area>0.01 & M.Area<0.1,:);
+                    elseif lks==2
+                        S=M(M.Area>0.1 & M.Area<1,:);
+                    elseif lks==3
+                        S=M(M.Area>1 & M.Area<10,:);
+                    elseif lks==4
+                        S=M(M.Area>10 & M.Area<100,:);
+                    elseif lks==5
+                        S=M(M.Area>100 & M.Area<1000,:);
+                    elseif lks==6 && resnat==1
+                        S=M(M.Area>1000,:);
+                    elseif lks==6 && resnat==2
+                        S=M(M.Area>100,:); %special condition for reservoirs >1000: we use data from reservoirs 100-1000 (see Methods).
+                    end
                 end
+
 
                 %get flux data and remove NaNs
                 f_d_tot=S.(['f_measmod_' gas])(~isnan(S.(['f_measmod_' gas])));
@@ -226,9 +247,7 @@ for g=1:3
                     case 'mean'
                         if size(f_d_tot,1)>1 %&& all(f_d_tot>0)
                             f(:,lks,cl)=bootstrp(boot_nb,@mean,f_d_tot);
-                            %f(:,lks,cl)=bootstrp(boot_nb,geo_mean_fun,f_d_tot);
                             f_ci(:,lks,cl)=bootci(boot_nb,{@mean,f_d_tot},'Alpha',0.5,'Type','bca'); %50% CI is equivalent to Q1 and Q3
-                            %f_ci(:,lks,cl)=bootci(boot_nb,{geo_mean_fun,f_d_tot},'Alpha',0.5,'Type','bca');
                             nb(:,lks,cl)=size(f_d_tot,1);
                         else
                             f(:,lks,cl)=NaN;
@@ -251,37 +270,40 @@ for g=1:3
             end
         end
 
-        % add ebullitive CH4 flux estimates based on power-law if required
-        if strcmp(gas,'CH4')
-            switch methane
-                case 'diffusive'
-                    %no transformation needed
-                case 'ebullitive'
-                    f_ci=p2.*f_ci.^p1;
-                    f=p2.*f.^p1;
-                case 'total'
-                    f_ci=f_ci+(p2.*f_ci.^p1);
-                    f=f+(p2.*f.^p1);
-            end
-        end
 
-        %% 3. Upscaling using lake/reservoir surface areas
+        %% 4. Upscaling using lake/reservoir surface areas and add ebullitive CH4 flux
         % multiplication of areal fluxes by surface area
-        F=NaN(boot_nb,6,5); F_ci=NaN(3,6,5); f_meds=NaN(6,5); %preallocate
+        F=NaN(boot_nb,num_classes,5); F_ci=NaN(3,num_classes,5); f_meds=NaN(num_classes,5); %preallocate
         Ql=SurfAr{resnat}; %this is the surface area data
-        for lks=1:6
+        for lks=1:num_classes
             for cl=1:5
-                B=Ql(Ql.area_class==lks+1 & Ql.climate_class==cl,:); %find matching row
+
+                %extract surface area data and adapt to each GHG
+                if strcmp(gas,'N2O')
+                    switch lks
+                        case 1
+                            B=Ql(Ql.area_class==2 & Ql.climate_class==cl,:);
+                        case 2
+                            B=Ql(ismember(Ql.area_class,[3,4]) & Ql.climate_class==cl,:);
+                        case 3
+                            B=Ql(ismember(Ql.area_class,[5,6,7,8]) & Ql.climate_class==cl,:);
+                    end
+                else
+                    B=Ql(Ql.area_class==lks+1 & Ql.climate_class==cl,:);
+                end
+
                 if lks==6
                     B2=Ql(Ql.area_class==lks+2 & Ql.climate_class==cl,:); %for last size class we add >10000 km2
                     B.sum_area_km2=B.sum_area_km2+B2.sum_area_km2;
+
                 end
-                area_m2=B.sum_area_km2*1E6; %m2
-                area_upper_m2=B.sum_area_km2*(1+0.01*percent_error_area)*1E6; % upper bound
-                area_lower_m2=B.sum_area_km2*(1-0.01*percent_error_area)*1E6; %lower bound
+                area_m2=sum(B.sum_area_km2)*1E6; %m2
+                A_m2(lks,cl)=area_m2;
+                area_upper_m2=sum(B.sum_area_km2)*(1+0.01*percent_error_area)*1E6; % upper bound
+                area_lower_m2=sum(B.sum_area_km2)*(1-0.01*percent_error_area)*1E6; %lower bound
 
                 F(:,lks,cl)=f(:,lks,cl)*area_m2; %mmol/d
-               switch meanmed
+                switch meanmed
                     case 'mean'
                         F_ci(2,lks,cl)=mean(F(:,lks,cl)); %mmol/d
                     case 'median'
@@ -291,8 +313,56 @@ for g=1:3
                 F_ci(1,lks,cl)=f_ci(1,lks,cl)*area_lower_m2; %lower uncertainty bound (mmol/d)
                 F_ci(3,lks,cl)=f_ci(2,lks,cl)*area_upper_m2; %upper uncertainty bound (mmol/d)
 
-                f_meds(lks,cl)=F_ci(2,lks,cl)/B.sum_area_km2/1E6; %mmol/m2/d
+                f_meds(lks,cl)=F_ci(2,lks,cl)/sum(B.sum_area_km2)/1E6; %mmol/m2/d
                 clear B B2
+
+            end
+        end
+
+        % add ebullitive CH4 flux estimates based on global median value
+        if strcmp(gas,'CH4')
+            switch methane
+                case 'diffusive'
+                    %no transformation needed
+                case 'ebullitive'
+                    for cl=1:5
+                        area_per_climate=Ql(Ql.climate_class==cl,:);
+                        is_large=ismember(area_per_climate.area_class,[7 8]);
+                        area_small=sum(area_per_climate.sum_area_km2(~is_large))*1E6; %m2
+                        area_large=sum(area_per_climate.sum_area_km2(is_large))*1E6; %m2
+                        flux_samples=flux_eb.*(1+flux_err/100.*randn(boot_nb,1));
+                        area_small_samples=area_small.*(1+percent_error_area/100.*randn(boot_nb,1));
+                        area_large_samples=area_large.*(1+percent_error_area/100.*randn(boot_nb,1));
+                        flux_small=flux_samples.*area_small_samples;
+                        flux_large=flux_samples.*area_large_samples*ratio_large;
+                        flux_total=flux_small+flux_large;
+                        for lks=1:num_classes
+                            %here we overwrite existing F_ci and F
+                            F(:,lks,cl)=flux_total/num_classes; %mmol/d
+                            F_ci(1,lks,cl)=prctile(flux_total/num_classes,25); %mmol/d
+                            F_ci(2,lks,cl)=median(flux_total/num_classes); %mmol/d
+                            F_ci(3,lks,cl)=prctile(flux_total/num_classes,75); %mmol/d
+                        end
+                    end
+                case 'total'
+                    for cl=1:5
+                        area_per_climate=Ql(Ql.climate_class==cl,:);
+                        is_large=ismember(area_per_climate.area_class,[7 8]);
+                        area_small=sum(area_per_climate.sum_area_km2(~is_large))*1E6; %m2
+                        area_large=sum(area_per_climate.sum_area_km2(is_large))*1E6; %m2
+                        flux_samples=flux_eb.*(1+flux_err/100.*randn(boot_nb,1));
+                        area_small_samples=area_small.*(1+percent_error_area/100.*randn(boot_nb,1));
+                        area_large_samples=area_large.*(1+percent_error_area/100.*randn(boot_nb,1));
+                        flux_small=flux_samples.*area_small_samples;
+                        flux_large=flux_samples.*area_large_samples*ratio_large;
+                        flux_total=flux_small+flux_large;
+                        for lks=1:num_classes
+                            F(:,lks,cl)=F(:,lks,cl)+flux_total/num_classes;
+                            F_ci(1,lks,cl)=F_ci(1,lks,cl)+prctile(flux_total/num_classes,25);
+                            F_ci(2,lks,cl)=F_ci(2,lks,cl)+median(flux_total/num_classes);
+                            F_ci(3,lks,cl)=F_ci(3,lks,cl)+prctile(flux_total/num_classes,75);
+                        end
+                    end
             end
         end
         clear Ql
@@ -320,13 +390,21 @@ for g=1:3
         switch gas
             case 'CO2'
                 F_ci_eq=F_ci*molar_mass_CO2/molar_mass_C; % Tg CO2 yr-1
+                F_eq=F*molar_mass_CO2/molar_mass_C; % Tg CO2 yr-1
             case 'CH4'
                 F_ci_eq_gas=F_ci*molar_mass_CH4/molar_mass_C; % Tg CH4 yr-1
                 F_ci_eq=F_ci_eq_gas*GWP_CH4; % Tg CO2-eq yr-1
+                F_eq_gas=F*molar_mass_CH4/molar_mass_C; % Tg CH4 yr-1
+                F_eq=F_eq_gas*GWP_CH4; % Tg CO2-eq yr-1
             case 'N2O'
                 F_ci_eq_gas=F_ci*molar_mass_N2O/molar_mass_N; % Tg N2O yr-1
                 F_ci_eq=F_ci_eq_gas*GWP_N2O; % Tg CO2-eq yr-1
+                F_eq_gas=F*molar_mass_N2O/molar_mass_N; % Tg N2O yr-1
+                F_eq=F_eq_gas*GWP_N2O; % Tg CO2-eq yr-1
         end
+
+
+        %% 5. Output and save data
 
         % output total median flux for a given gas
         for i=1:3 %lower, med, upper
@@ -394,8 +472,35 @@ for g=1:3
         end
 
         %save data before starting another system type and gas
+
         scaledFlux_eq_=['scaledFlux_eq_' gas '_' type{resnat}];
         eval([scaledFlux_eq_ ' = F_ci_eq;']);
+
+        switch gas
+            case 'CO2'
+                molar_mass_gas=molar_mass_CO2;
+                GWP_gas=1;
+            case 'CH4'
+                molar_mass_gas=molar_mass_CH4;
+                GWP_gas=GWP_CH4;
+            case 'N2O'
+                molar_mass_gas=molar_mass_N2O;
+                GWP_gas=GWP_N2O;
+        end
+
+        F_boot_total=NaN(boot_nb,5);
+        for cl=1:5
+            tmp=zeros(boot_nb,1);
+            for lks=1:num_classes
+                if ~all(isnan(f(:,lks,cl))) && ~isnan(A_m2(lks,cl)) && A_m2(lks,cl)>0
+                    tmp=tmp+f(:,lks,cl)*A_m2(lks,cl);
+                end
+            end
+            F_boot_total(:,cl)=tmp*molar_mass_gas/1e15*365*GWP_gas;
+        end
+
+        scaledFlux_boot_eq_=['scaledFlux_boot_eq_' gas '_' type{resnat}];
+        eval([scaledFlux_boot_eq_ ' = F_boot_total;']);
 
     end
 
@@ -406,7 +511,3 @@ disp('flux calculation for lakes/reservoirs done')
 disp(' ')
 
 end
-
-
-
-
