@@ -2,9 +2,11 @@
 % The function uses either the Raymond (eq5) or Ulseth gas transfer velocity model (depending on selection in the prompts). 
 % The function computes either diffusive, ebullitive, or total CH4 fluxes (depending on selection in the prompts).
 %
+
 function[T,errorBar_CO2,errorBar_CH4,errorBar_N2O,arealFlux_CO2,scaledFlux_CO2,scaledFlux_eq_CO2,arealFlux_CH4,...
     scaledFlux_CH4,scaledFlux_eq_CH4,arealFlux_N2O,scaledFlux_N2O,...
-    scaledFlux_eq_N2O]=flux_calculation_rivers(T)
+    scaledFlux_eq_N2O,scaledFlux_boot_eq_CO2,scaledFlux_boot_eq_CH4,...
+    scaledFlux_boot_eq_N2O]=flux_calculation_rivers(T)
 %
 % This function contains the following sections:
 % 1. Initialise constants and import dataset
@@ -12,6 +14,7 @@ function[T,errorBar_CO2,errorBar_CH4,errorBar_N2O,arealFlux_CO2,scaledFlux_CO2,s
 % 3. Estimate fluxes based on concentration and k
 % 4. Bootstrapping to obtain median (Q1-Q3) fluxes per stream order and climate zone
 % 5. Upscaling using river surface areas
+% 6. Output and save data
 %
 % Inputs
 % T is a reduced table that has been processed using 'unit_conversion', 'climate_classification' and 'averaging_per_site'
@@ -45,7 +48,7 @@ GWP_N2O=298;
 GWP_CH4=34;
 percent_error_area=30; %percent error on surface area estimates
 climate_class={'humid tropics','wet-dry tropics','(semi)arid (sub)tropics','humid subtropics','highland (sub)tropics'};
-threshold=10;
+threshold=10; %minimum sample size for subgroups below which we use the entire dataset
 
 %import river surface areas for each SO and climate class
 SurfAr=readtable('river_surface_areas.csv');
@@ -90,11 +93,10 @@ for g=1:3
     T.Sc_CH4=1909.4-120.78.*T.Temp_gapfill+4.1555.*T.Temp_gapfill.^2-0.080578.*T.Temp_gapfill.^3+0.00065777.*T.Temp_gapfill.^4; %Jahne et al (1987) / Wanninkhof (2014)
     T.Sc_N2O=2141.2-152.56.*T.Temp_gapfill+5.8963.*T.Temp_gapfill.^2-0.12411.*T.Temp_gapfill.^3+0.0010655.*T.Temp_gapfill.^4; %Jahne et al (1987) / Wanninkhof (2014)
 
-    % import coefficients of power-law relationship between ebullitive and
-    % diffusive CH4 fluxes to add ebullitive component to all diffusive estimates
+    % import coefficients of relationship between ebullitive and diffusive CH4
+    % fluxes (Rocher-Ros et al. 2023) to add ebullitive component to all diffusive estimates
     if strcmp(gas,'CH4')
-        %p1=1.0636; p2=10^0.1850;
-        p1=0.9123; p2=10^0.2658;   %revised May 2025
+         p1=1.1; p2=0.089; 
     end
 
     % calculate energy dissipation rate eD and k600 based on Ulseth et al. 2019 or Raymond et al. 2012
@@ -148,7 +150,7 @@ for g=1:3
     end
     T.f_modelled=F; clear F
 
-    % check goodness of fit for measured vs modelled flux
+    % check goodness of fit for measured vs modelled flux - do this only once we reach N2O
     B2=T(~isnan(T.f_modelled) & ~isnan(T.(flux_field)) & T.F_method_cat=='measured',:); %we only keep 'truly' measured fluxes
     B2=B2(B2.f_modelled>0 & B2.(flux_field)>0,:);
     GOF_mod{g}=B2.f_modelled;
@@ -261,80 +263,46 @@ disp('goodness of fit for measured/modelled flux data')
             f_measmod_med_iqr(3,so,cl)=f_measmod_med_iqr(2,so,cl); %upper bound moved to 3rd row
             f_measmod_med_iqr(2,so,cl)=mean(f_measmod(:,so,cl)); %mean
                  case 'median'
-                         f_measmod(:,so,cl)=bootstrp(boot_nb,@median,data);
-            f_measmod_med_iqr(1:2,so,cl)=bootci(boot_nb,{@median,data},'Alpha',0.5,'Type','bca'); %50% CI is equivalent to Q1 and Q3
-            f_measmod_med_iqr(3,so,cl)=f_measmod_med_iqr(2,so,cl); %upper bound moved to 3rd row
-            f_measmod_med_iqr(2,so,cl)=median(f_measmod(:,so,cl)); %median                    
-             end             
-                     clear Sub f_d_measmod f_d_measmod_tot data
+                     f_measmod(:,so,cl)=bootstrp(boot_nb,@median,data);
+                     f_measmod_med_iqr(1:2,so,cl)=bootci(boot_nb,{@median,data},'Alpha',0.5,'Type','bca'); %50% CI is equivalent to Q1 and Q3
+                     f_measmod_med_iqr(3,so,cl)=f_measmod_med_iqr(2,so,cl); %upper bound moved to 3rd row
+                     f_measmod_med_iqr(2,so,cl)=median(f_measmod(:,so,cl)); %median
+             end
+             clear Sub f_d_measmod f_d_measmod_tot data
         end
     end
 
-    % add ebullitive CH4 flux estimates based on power-law if required
+    % add ebullitive CH4 flux estimates if required
     if strcmp(gas,'CH4')
         switch methane
             case 'diffusive'
                 %no transformation needed
             case 'ebullitive'
-                f_measmod_med_iqr=p2.*f_measmod_med_iqr.^p1; %adding to bootstrapped values
+                f_measmod_med_iqr=p1.*f_measmod_med_iqr+p2; %adding to bootstrapped values
+                cv=0.81;  %corresponds to R2=0.34 (Rocher-Ross et al.)
+                noise=squeeze(f_measmod_med_iqr(2,:,:))*cv; %compute noise from median
+                f_measmod_med_iqr(1,:,:)=squeeze(f_measmod_med_iqr(1,:,:))-noise; %makes Q1 lower
+                f_measmod_med_iqr(3,:,:)=squeeze(f_measmod_med_iqr(3,:,:))+noise; %makes Q3 higher
                 for j=1:size(T,1)
                     if T.(measmod_field)(j)>0
-                        T.(measmod_field)(j)=p2.*T.(measmod_field)(j).^p1; %adding to table
+                        T.(measmod_field)(j)=p1.*T.(measmod_field)(j)+p2; %adding to table
                     end
                 end
             case 'total'
-                f_measmod_med_iqr=f_measmod_med_iqr+(p2.*f_measmod_med_iqr.^p1); %adding to bootstrapped values
+                f_measmod_med_iqr=f_measmod_med_iqr+(p1.*f_measmod_med_iqr+p2); %adding to bootstrapped values
+                cv=0.81;  %corresponds to R2=0.34 (Rocher-Ross et al.)
+                noise=squeeze(f_measmod_med_iqr(2,:,:))*cv; %compute noise from median
+                f_measmod_med_iqr(1,:,:)=squeeze(f_measmod_med_iqr(1,:,:))-noise; %makes Q1 lower
+                f_measmod_med_iqr(3,:,:)=squeeze(f_measmod_med_iqr(3,:,:))+noise; %makes Q3 higher
+
                 for j=1:size(T,1)
                     if T.(measmod_field)(j)>0
-                        T.(measmod_field)(j)=T.(measmod_field)(j)+(p2.*T.(measmod_field)(j).^p1); %adding to table
+                        T.(measmod_field)(j)=T.(measmod_field)(j)+(p1.*T.(measmod_field)(j)+p2); %adding to table
                     end
                 end
         end
     end
 
-% Output formatted table: "median (IQR; n=X)" across stream orders
-disp(' ')
-disp(['Median ',gas,' fluxes (',meanmed, ') in mmol/m2/d across stream orders 1–9+'])
-disp('Format: median (IQR; n=X)')
-disp(' ')
-
-for cl=1:5
-    fprintf('%-12s\t',climate_class{cl});
-    for so=1:9
-        val=medFlux{so,cl};
-        val=val(~isnan(val));
-        n=numel(val);
-        if n==0
-            result='NA';
-        else
-            switch meanmed
-                case 'mean'
-                    central=mean(val);
-                    q1=prctile(val,25);
-                    q3=prctile(val,75);
-                case 'median'
-                    central=median(val);
-                    q1=prctile(val,25);
-                    q3=prctile(val,75);
-            end
-            switch gas
-                case 'CO2'
-                    result=sprintf('%.1f (%.1f–%.1f; n=%d)',central,q1,q3,n);
-                case 'CH4'
-                    result=sprintf('%.3f (%.3f–%.3f; n=%d)',central,q1,q3,n);
-                case 'N2O'
-                    result=sprintf('%.3f (%.3f–%.3f; n=%d)',central,q1,q3,n);
-            end
-        end
-
-        fprintf('%-28s', result);  % print per stream order
-        clear val
-    end
-    fprintf('\n');
-end
-
-disp(' ')
-clear medFlux
 
 
     %% 5. Upscaling using river surface areas
@@ -346,6 +314,7 @@ clear medFlux
             B=SurfAr(SurfAr.order==so & SurfAr.climate_class==cl,:); %find matching row in surface area dataset
             if isempty(B)==0 && ~isnan(f_measmod_med_iqr(2,so+1,cl)) %the +1 is to match the right SO (1 for 0 in area file)
                 area_m2=B.surface_area_km2*1E6*(1-B.fraction_dry); %m2
+                A_m2(so+1,cl)=area_m2;
                 area_upper_m2=B.surface_area_km2*(1+percent_error_area/100)*1E6*(1-B.fraction_dry); % upper bound
                 area_lower_m2=B.surface_area_km2*(1-percent_error_area/100)*1E6*(1-B.fraction_dry); %lower bound
                 F(:,so+1,cl)=f_measmod(:,so+1,cl)*area_m2; %mmol/d
@@ -378,12 +347,17 @@ clear medFlux
     switch gas
         case 'CO2'
             F_med_iqr_eq=F_med_iqr*molar_mass_CO2/molar_mass_C; % Tg CO2 yr-1
+            F_eq=F*molar_mass_CO2/molar_mass_C; % Tg CO2 yr-1
         case 'CH4'
             F_med_iqr_gas=F_med_iqr*molar_mass_CH4/molar_mass_C; % Tg CH4 yr-1
             F_med_iqr_eq=F_med_iqr_gas*GWP_CH4; % Tg CO2-eq yr-1
+            F_eq_gas=F*molar_mass_CH4/molar_mass_C; % Tg CH4 yr-1
+            F_eq=F_eq_gas*GWP_CH4; % Tg CO2-eq yr-1
         case 'N2O'
             F_med_iqr_gas=F_med_iqr*molar_mass_N2O/molar_mass_N; % Tg N2O yr-1
             F_med_iqr_eq=F_med_iqr_gas*GWP_N2O; % Tg CO2-eq yr-1
+            F_eq_gas=F*molar_mass_N2O/molar_mass_N; % Tg N2O yr-1
+            F_eq=F_eq_gas*GWP_N2O; % Tg CO2-eq yr-1
     end
 
     % calculate error bars per climate and gas
@@ -392,6 +366,9 @@ clear medFlux
         F_ci_eq_errorbar(cl,1)=sum(F_med_iqr_eq(1,:,cl),'omitnan');
         F_ci_eq_errorbar(cl,2)=sum(F_med_iqr_eq(3,:,cl),'omitnan');
     end
+
+
+    %% 6. Output and save data
 
     % output total median flux for a given gas
     for i=1:3 %lower, med, upper
@@ -449,6 +426,32 @@ clear medFlux
     eval([arealFlux_ ' = f_measmod_med_iqr;']);
     eval([scaledFlux_ ' = F_med_iqr;']);
     eval([scaledFlux_eq_ ' = F_med_iqr_eq;']);
+
+    switch gas
+            case 'CO2'
+                molar_mass_gas=molar_mass_CO2;
+                GWP_gas=1;
+            case 'CH4'
+                molar_mass_gas=molar_mass_CH4;
+                GWP_gas=GWP_CH4;
+            case 'N2O'
+                molar_mass_gas=molar_mass_N2O;
+                GWP_gas=GWP_N2O;
+        end
+
+        F_boot_total=NaN(boot_nb,5);
+        for cl=1:5
+            tmp=zeros(boot_nb,1);
+            for so=1:8
+                if ~all(isnan(f_measmod(:,so,cl))) && ~isnan(A_m2(so,cl)) && A_m2(so,cl)>0
+                    tmp=tmp+f_measmod(:,so,cl)*A_m2(so,cl);
+                end
+            end
+            F_boot_total(:,cl)=tmp*molar_mass_gas/1e15*365*GWP_gas;
+        end
+
+scaledFlux_boot_eq_=['scaledFlux_boot_eq_' gas];
+        eval([scaledFlux_boot_eq_ ' = F_boot_total;']);
 
     disp('subgroup sizes')
     disp(sizes)
