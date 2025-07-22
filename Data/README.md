@@ -1,6 +1,8 @@
 # Dataset documentation
 This folder contains raw and processed datasets used for the analysis of (sub)tropical inland water GHG fluxes, including supporting metadata.
 
+**Note**: A subfolder includes Chinese-language PDF documents, with filenames corresponding to reference numbers in 'reference_list.csv'. These documents were added to ensure reproducibility, as they may not be easily accessible through standard databases.
+
 ---
 
 ## References
