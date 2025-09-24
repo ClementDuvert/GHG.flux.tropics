@@ -52,7 +52,7 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 
 ## Column descriptions and units
 
-### raw datasets (`dataset_lakes_raw.txt` and `dataset_rivers_raw.txt`)
+### Raw datasets (`dataset_lakes_raw.txt` and `dataset_rivers_raw.txt`)
 
 | Column name             | Units / format      | Description |
 |-------------------------|---------------------|-------------|
@@ -116,7 +116,8 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 | `Comments`              | —                   | Any notes on data extraction, averaging, or corrections |
 
 
-### full, processed datasets (`dataset_lakes_full_converted.csv` and `dataset_rivers_full_converted.csv`)
+
+### Processed datasets (`dataset_lakes_full_converted.csv` and `dataset_rivers_full_converted.csv`)
 
 | Column name              | Units / format        | Description |
 |---------------------------|-----------------------|-------------|
@@ -132,7 +133,7 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 | `Latitude`               | decimal degrees       | Latitude of sampling location |
 | `Longitude`              | decimal degrees       | Longitude of sampling location |
 | `LakeType`               | —                     | Type of waterbody: "lake" or "reservoir" |
-| `LakeArea_km2`           | km2                   | Consolidated lake or reservoir surface area (combined from reported and HydroLAKES |
+| `LakeArea_km2`           | km2                   | Consolidated lake or reservoir surface area (combined from reported and HydroLAKES) |
 | `CatchmentArea_km2`      | km2                   | Catchment area derived from H90 |
 | `StreamOrder`            | —                     | Consolidated stream order (combined from reported and H90-derived values) |
 | `Slope`                  | m/m                   | Consolidated slope (combined from reported and H90-derived values) |
@@ -165,7 +166,8 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 | `Wind_ms`                | m s-1                 | Mean wind speed from WorldClim v2 |
 
 
-### aggregated datasets (`dataset_lakes_reduced.csv` and `dataset_rivers_reduced.csv`)
+
+### Aggregated datasets (`dataset_lakes_reduced.csv` and `dataset_rivers_reduced.csv`)
 
 | Column name                     | Units / format        | Description |
 |--------------------------------|------------------------|-------------|
