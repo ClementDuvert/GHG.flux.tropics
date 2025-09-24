@@ -19,8 +19,10 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 |-----------|-------------|
 | `dataset_lakes_raw.txt` | Unprocessed lake data as extracted from original studies |
 | `dataset_rivers_raw.txt` | Unprocessed river data as extracted from original studies |
-| `dataset_lakes_reduced.csv` | Processed and reduced version of lake data with means per system |
-| `dataset_rivers_reduced.csv` | Processed and reduced version of river data with means per site |
+| `dataset_lakes_full_converted.csv` | Processed lake data with homogenised units and added lake features |
+| `dataset_rivers_full_converted.csv` | Processed river data with homogenised units and added catchment features |
+| `dataset_lakes_reduced.csv` | Aggregated lake data with mean values per system |
+| `dataset_rivers_reduced.csv` | Aggregated river data with mean values per site |
 
 ---
 
@@ -109,12 +111,61 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 | `DIC_value`             | —                   | Dissolved inorganic carbon |
 | `DIC_units`             | —                   | Units used for DIC |
 | `k`                     | —                   | Gas transfer velocity |
-| `k600`                  | —                   | Standardised gas transfer velocity at 600 Schmidt |
+| `k600`                  | —                   | Measured gas transfer velocity standardised at Sc 600 |
 | `k_units`               | —                   | Units used for `k` and `k600` |
 | `Comments`              | —                   | Any notes on data extraction, averaging, or corrections |
 
 
-### reduced datasets (`dataset_lakes_reduced.csv` and `dataset_rivers_reduced.csv`)
+### full, processed datasets (`dataset_lakes_full_converted.csv` and `dataset_rivers_full_converted.csv`)
+
+| Column name              | Units / format        | Description |
+|---------------------------|-----------------------|-------------|
+| `LakeIndex`              | —                     | Internal lake identifier |
+| `Ref`                    | —                     | Reference number as per `reference_list.csv` |
+| `Site`                   | —                     | Name of the sampling site |
+| `day`                    | DD                    | Day of measurement |
+| `month`                  | MM                    | Month of measurement |
+| `year`                   | YYYY                  | Year of measurement |
+| `time`                   | HH:MM:SS              | Time of measurement |
+| `measurement_frequency`  | —                     | Frequency of measurement as reported in the study (from "interannual" to "HF"; see Methods) |
+| `reported_frequency`     | —                     | Frequency of available data (from "interannual" to "HF"; see Methods) |
+| `Latitude`               | decimal degrees       | Latitude of sampling location |
+| `Longitude`              | decimal degrees       | Longitude of sampling location |
+| `LakeType`               | —                     | Type of waterbody: "lake" or "reservoir" |
+| `LakeArea_km2`           | km2                   | Consolidated lake or reservoir surface area (combined from reported and HydroLAKES |
+| `CatchmentArea_km2`      | km2                   | Catchment area derived from H90 |
+| `StreamOrder`            | —                     | Consolidated stream order (combined from reported and H90-derived values) |
+| `Slope`                  | m/m                   | Consolidated slope (combined from reported and H90-derived values) |
+| `Climate`                | categorical (1–5)     | 1: humid tropics; 2: wet-dry tropics; 3: (semi)arid (sub)tropics; 4: humid subtropics; 5: highland (sub)tropics |
+| `Temp_C`                 | °C                    | Water temperature |
+| `DO_mgL`                 | mg/L                  | Dissolved oxygen |
+| `pH`                     | —                     | pH |
+| `Cond_uScm`              | µS/cm                 | Electrical conductivity |
+| `humanFootprint_BasAt`   | index                 | Human footprint index from BasinATLAS |
+| `soilOrganicCarbon_BasAt`| g C kg-1 soil         | Soil organic carbon content from BasinATLAS |
+| `airTemperature_BasAt`   | °C                    | Mean annual air temperature from BasinATLAS |
+| `rainfall_BasAt`         | mm                    | Mean annual precipitation from BasinATLAS |
+| `runoff_BasAt`           | mm                    | Mean annual runoff from BasinATLAS |
+| `groundwaterDepth_BasAt` | m                     | Mean depth to groundwater from BasinATLAS |
+| `NPP_Modis`              | g C m-2 yr-1          | Net primary productivity from MODIS |
+| `peatlandCover_Modis`    | %                     | Fraction of catchment covered by peatlands from MODIS |
+| `seasonality_FengIndex`  | —                     | Seasonality index calculated based on Feng et al. 2013 |
+| `CO2_uM`                 | µM                    | Dissolved CO2 concentration |
+| `DirectIndirect_CO2`     | —                     | Method of CO2 measurement: "direct" (sensor, headspace) or "indirect" (alkalinity+pH) |
+| `CH4_uM`                 | µM                    | Dissolved CH4 concentration |
+| `N2O_uM`                 | µM                    | Dissolved N2O concentration |
+| `FluxMethod`             | —                     | Method used to estimate GHG fluxes: "measured" or "modelled" |
+| `F_CO2_mmol_m2_d`        | mmol m-2 d-1          | Diffusive CO2 flux |
+| `F_CH4_diff_mmol_m2_d`   | mmol m-2 d-1          | Diffusive CH4 flux |
+| `F_CH4_eb_mmol_m2_d`     | mmol m-2 d-1          | Ebullitive CH4 flux |
+| `F_N2O_mmol_m2_d`        | mmol m-2 d-1          | Diffusive N2O flux |
+| `DOC_uM`                 | µM                    | Dissolved organic carbon |
+| `DIC_uM`                 | µM                    | Dissolved inorganic carbon |
+| `k600_md`                | m d-1                 | Measured gas transfer velocity, standardised to k600 |
+| `Wind_ms`                | m s-1                 | Mean wind speed from WorldClim v2 |
+
+
+### aggregated datasets (`dataset_lakes_reduced.csv` and `dataset_rivers_reduced.csv`)
 
 | Column name                     | Units / format        | Description |
 |--------------------------------|------------------------|-------------|
@@ -132,7 +183,7 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 | `k600_md`                        | m/d                    | Mean consolidated gas transfer velocity (k600), measured or modelled |
 | `MeasFreq`                       | —                      | Highest frequency of measurement across studies at this site (from "interannual" to "HF"; see Methods) |
 | `ReportedFreq`                   | —                      | Highest frequency of available data at this site (from "interannual" to "HF"; see Methods) |
-| `DirectIndirect_CO2`             | —                      | CO2 data source: "direct" (sensor, headspace) or "indirect" (alkalinity+pH) |
+| `DirectIndirect_CO2`             | —                      | Method of CO2 measurement: "direct" (sensor, headspace) or "indirect" (alkalinity+pH) |
 | `FluxMethod`                     | —                      | Method used to estimate GHG fluxes: "measured" or "modelled" |
 | `Discharge_m3s`                  | m3/s                   | Mean annual runoff from GRADES |
 | `Velocity_ms`                    | m/s                    | Mean flow velocity |
