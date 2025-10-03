@@ -220,7 +220,7 @@ This folder contains raw and processed datasets used for the analysis of (sub)tr
 These datasets are released under the **[CC-BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)**. You are free to use, share, and adapt the data with proper attribution.
 
 If using this dataset in a publication, please cite:
-Duvert et al. (in revision). Hydroclimate and landscape diversity drive highly variable greenhouse gas emissions from (sub)tropical inland waters. Nature Water. 
+Duvert C. et al. (2025) Hydroclimate and landscape diversity drive highly variable greenhouse gas emissions from tropical and subtropical inland waters, Nature Water 3, https://doi.org/10.1038/s44221-025-00522-8.
 
 ---
 
