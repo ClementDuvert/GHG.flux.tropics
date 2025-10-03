@@ -7,7 +7,7 @@ The GHG.flux.tropics package consists of MATLAB scripts designed to calculate gr
 - Estimation of median fluxes per climate region and system size (e.g. Strahler order) using a bootstrapping approach.
 - Scaling of these fluxes to the broader (sub)tropics.
 
-The package includes the necessary raw data files and is related to a published paper: Duvert C. et al., Hydroclimate and landscape diversity drive highly variable greenhouse gas emissions from tropical and subtropical inland waters, Nature Water 3, https://doi.org/10.1038/s44221-025-00522-8.
+The package includes the necessary raw data files and is related to the following article: Duvert C. et al. (2025) Hydroclimate and landscape diversity drive highly variable greenhouse gas emissions from tropical and subtropical inland waters, Nature Water 3, https://doi.org/10.1038/s44221-025-00522-8.
 
 ### System requirements
 - MATLAB version: R2022a Update 1 or later.
